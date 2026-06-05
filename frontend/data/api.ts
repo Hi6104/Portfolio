@@ -45,3 +45,8 @@ export const getQuiz = async (id: string): Promise<Quiz> => {
   const response = await api.get('/quizzes/' + id);
   return response.data;
 };
+
+export const sendContact = async (name: string, email: string, message: string): Promise<{ success: boolean; message: string }> => {
+  const response = await api.post('/contact', { name, email, message });
+  return response.data;
+};

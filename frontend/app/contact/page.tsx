@@ -2,28 +2,38 @@
 
 import React, { useState } from 'react';
 import GlassCard from '../../components/GlassCard';
+import { constants, socials } from '@/constants';
+import { sendContact } from '../../data/api';
 
 export default function ContactScreen() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
   const [subscribe, setSubscribe] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [statusMessage, setStatusMessage] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name || !email || !message) return;
 
-    alert(`Thank you, ${name}! Your transmission has been broadcast. A response will compile in your inbox shortly.`);
-    setName('');
-    setEmail('');
-    setMessage('');
+    setIsLoading(true);
+    setStatus('idle');
+    try {
+      await sendContact(name, email, message);
+      setStatus('success');
+      setStatusMessage('Message sent! I will get back to you soon.');
+      setName('');
+      setEmail('');
+      setMessage('');
+    } catch (err) {
+      setStatus('error');
+      setStatusMessage('Failed to send message. Please try again or email directly.');
+    } finally {
+      setIsLoading(false);
+    }
   };
-
-  const socials = [
-    { label: 'GitHub Repository', url: 'https://github.com', value: 'github.com/fluxfolio', handle: 'fluxfolio' },
-    { label: 'LinkedIn Profile', url: 'https://linkedin.com', value: 'linkedin.com/in/felix', handle: 'felix-de' },
-    { label: 'Twitter Feed', url: 'https://twitter.com', value: 'twitter.com/felix_dev', handle: 'felix_dev' }
-  ];
 
   return (
     <div className="w-full relative min-h-screen py-10 px-6 overflow-hidden">
@@ -80,7 +90,7 @@ export default function ContactScreen() {
                 </div>
 
                 <div>
-                  <label className="text-[10px] font-bold text-zinc-550 block mb-1.5">Transmission Message</label>
+                  <label className="text-[10px] font-bold text-zinc-550 block mb-1.5">Message</label>
                   <textarea
                     rows={4}
                     required
@@ -103,12 +113,32 @@ export default function ContactScreen() {
                   </span>
                 </label>
 
+                {status === 'success' && (
+                  <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold">
+                    ✓ {statusMessage}
+                  </div>
+                )}
+                {status === 'error' && (
+                  <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs font-semibold">
+                    ✗ {statusMessage}
+                  </div>
+                )}
+
                 <div className="pt-2">
                   <button
                     type="submit"
-                    className="bg-brand-purple hover:bg-brand-purple-dark text-white font-extrabold px-6 py-3 rounded-2xl transition active:scale-[0.98] shadow-lg text-xs"
+                    disabled={isLoading}
+                    className="bg-brand-purple hover:bg-brand-purple-dark disabled:opacity-60 disabled:cursor-not-allowed text-white font-extrabold px-6 py-3 rounded-2xl transition active:scale-[0.98] shadow-lg text-xs flex items-center gap-2"
                   >
-                    Broadcast Transmission
+                    {isLoading ? (
+                      <>
+                        <svg className="animate-spin w-3 h-3" viewBox="0 0 24 24" fill="none">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                        </svg>
+                        Sending...
+                      </>
+                    ) : 'Send Message'}
                   </button>
                 </div>
 
@@ -140,8 +170,10 @@ export default function ContactScreen() {
                 </svg>
               </div>
 
-              <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider mt-4">
-                Location: <span className="text-white">San Francisco Bay Area, CA</span>
+              <div className="space-y-1.5 mt-4 text-[10px] font-bold uppercase tracking-wider text-zinc-500">
+                <div>Location: <span className="text-white">{constants.location}</span></div>
+                <div>Email: <a href="mailto:hvishwakarma821@gmail.com" className="text-brand-cyan hover:underline normal-case">hvishwakarma821@gmail.com</a></div>
+                <div>Phone: <a href="tel:+917080987084" className="text-brand-cyan hover:underline normal-case">+91 7080987084</a></div>
               </div>
             </GlassCard>
 
@@ -163,7 +195,7 @@ export default function ContactScreen() {
                       <div className="text-[9px] font-extrabold text-zinc-550 uppercase">{soc.label}</div>
                       <div className="font-extrabold text-white mt-0.5">{soc.handle}</div>
                     </div>
-                    <span className="text-[10px] text-zinc-500 group-hover:text-brand-purple">
+                    <span className="text-[10px] text-zinc-500 group-hover:text-brand-purple text-right">
                       {soc.value}
                     </span>
                   </a>

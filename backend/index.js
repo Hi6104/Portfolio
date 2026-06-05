@@ -1,12 +1,14 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const nodemailer = require('nodemailer');
 const { dbPromise, setupDatabase } = require('./database');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-app.use(cors());
 app.use(express.json());
+app.use(cors());
 
 // Initialize DB before starting server
 setupDatabase().then(() => {
@@ -19,7 +21,7 @@ setupDatabase().then(() => {
 const parseJSON = (str) => {
   try {
     return JSON.parse(str);
-  } catch(e) {
+  } catch (e) {
     return [];
   }
 };
@@ -39,7 +41,7 @@ app.get('/api/projects', async (req, res) => {
       metrics: parseJSON(p.metrics)
     }));
     res.json(formatted);
-  } catch(err) {
+  } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
@@ -50,7 +52,7 @@ app.get('/api/projects/:id', async (req, res) => {
     // We try to match by id or slug
     const project = await db.get('SELECT * FROM projects WHERE id = ? OR slug = ?', [req.params.id, req.params.id]);
     if (!project) return res.status(404).json({ error: 'Project not found' });
-    
+
     res.json({
       ...project,
       isFeatured: Boolean(project.isFeatured),
@@ -58,7 +60,7 @@ app.get('/api/projects/:id', async (req, res) => {
       gallery: parseJSON(project.gallery),
       metrics: parseJSON(project.metrics)
     });
-  } catch(err) {
+  } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
@@ -77,7 +79,7 @@ app.get('/api/posts', async (req, res) => {
       tags: parseJSON(p.tags)
     }));
     res.json(formatted);
-  } catch(err) {
+  } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
@@ -87,14 +89,14 @@ app.get('/api/posts/:id', async (req, res) => {
     const db = await dbPromise;
     const post = await db.get('SELECT * FROM posts WHERE id = ? OR slug = ?', [req.params.id, req.params.id]);
     if (!post) return res.status(404).json({ error: 'Post not found' });
-    
+
     res.json({
       ...post,
       isPublished: Boolean(post.isPublished),
       isTrending: Boolean(post.isTrending),
       tags: parseJSON(post.tags)
     });
-  } catch(err) {
+  } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
@@ -119,7 +121,7 @@ app.get('/api/comments', async (req, res) => {
       isFlagged: Boolean(c.isFlagged)
     }));
     res.json(formatted);
-  } catch(err) {
+  } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
@@ -133,24 +135,24 @@ app.post('/api/comments', async (req, res) => {
     const db = await dbPromise;
     const id = 'c' + Date.now();
     const date = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-    
+
     await db.run(
       'INSERT INTO comments (id, targetType, targetId, authorName, authorEmail, content, date, isApproved, isFlagged) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
       [id, targetType, targetId, authorName, authorEmail, content, date, true, false]
     );
-    
+
     // Also update commentsCount on post if applicable
     if (targetType === 'post') {
       await db.run('UPDATE posts SET commentsCount = commentsCount + 1 WHERE id = ?', [targetId]);
     }
-    
+
     const newComment = await db.get('SELECT * FROM comments WHERE id = ?', [id]);
     res.status(201).json({
       ...newComment,
       isApproved: Boolean(newComment.isApproved),
       isFlagged: Boolean(newComment.isFlagged)
     });
-  } catch(err) {
+  } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
@@ -163,7 +165,7 @@ app.get('/api/quizzes', async (req, res) => {
     const db = await dbPromise;
     const quizzes = await db.all('SELECT * FROM quizzes');
     const questions = await db.all('SELECT * FROM quiz_questions');
-    
+
     const formatted = quizzes.map(q => {
       const qQuestions = questions.filter(qq => qq.quizId === q.id).map(qq => ({
         ...qq,
@@ -175,9 +177,9 @@ app.get('/api/quizzes', async (req, res) => {
         questions: qQuestions
       };
     });
-    
+
     res.json(formatted);
-  } catch(err) {
+  } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
@@ -187,20 +189,58 @@ app.get('/api/quizzes/:id', async (req, res) => {
     const db = await dbPromise;
     const quiz = await db.get('SELECT * FROM quizzes WHERE id = ?', [req.params.id]);
     if (!quiz) return res.status(404).json({ error: 'Quiz not found' });
-    
+
     const questions = await db.all('SELECT * FROM quiz_questions WHERE quizId = ?', [quiz.id]);
     const formattedQuestions = questions.map(qq => ({
       ...qq,
       options: parseJSON(qq.options)
     }));
-    
+
     res.json({
       ...quiz,
       tags: parseJSON(quiz.tags),
       questions: formattedQuestions
     });
-  } catch(err) {
+  } catch (err) {
     res.status(500).json({ error: err.message });
+  }
+});
+
+// =======================
+// CONTACT / EMAIL
+// =======================
+app.post('/api/contact', async (req, res) => {
+  console.log(req.body)
+  const { name, email, message } = req.body;
+  if (!name || !email || !message) {
+    return res.status(400).json({ error: 'Name, email, and message are required.' });
+  }
+
+  try {
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.GMAIL_USER,
+        pass: process.env.GMAIL_APP_PASSWORD
+      }
+    });
+
+    await transporter.sendMail({
+      from: '"Portfolio Contact" <' + process.env.GMAIL_USER + '>',
+      to: 'hvishwakarma821@gmail.com',
+      replyTo: email,
+      subject: 'New Contact Message from ' + name,
+      html: '<h2>New message from your portfolio contact form</h2>' +
+        '<p><strong>Name:</strong> ' + name + '</p>' +
+        '<p><strong>Email:</strong> <a href="mailto:' + email + '">' + email + '</a></p>' +
+        '<p><strong>Message:</strong></p>' +
+        '<p style="white-space:pre-wrap;">' + message + '</p>'
+    });
+
+    res.json({ success: true, message: 'Email sent successfully.' });
+  } catch (err) {
+    console.error('Email send error:', err);
+    res.status(500).json({ error: 'Failed to send email. Please try again later.' });
   }
 });
 
