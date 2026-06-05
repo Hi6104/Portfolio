@@ -78,141 +78,105 @@ export interface Quiz {
 
 export const mockProjects: Project[] = [
   {
-    id: 'neo-futurism-ui-kit',
-    title: 'Neo-futurism UI Kit',
-    slug: 'neo-futurism-ui-kit',
-    subtitle: 'A highly polished design system using React 19 & Tailwind CSS v4.',
-    description: 'An open-source library that implements glassmorphic layouts, dynamic spring physical models, and absolute design consistency across devices.',
-    problem: 'Existing UI kits were either too flat or heavily bloated with JavaScript dependencies. There was a lack of high-performance glassmorphism libraries supporting standard Tailwind properties.',
-    approach: 'I designed a CSS-first token system using Tailwind v4 custom theme variables. Built dynamic components leveraging physics-based fluid scroll and native React transitions.',
-    solution: 'A production-ready design kit that includes a rich library of layouts, smooth contrast adjustments, and complex interactive sliders with zero third-party scripts.',
-    codeSnippet: `.glass-card {
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 20px;
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+    id: 'okuru',
+    title: 'Okuru - Digital Gift Card Platform',
+    slug: 'okuru-digital-gift-card-platform',
+    subtitle: 'Admin and Partner portals for a scalable digital gift card ecosystem.',
+    description: 'Developed the frontend for the Admin and Partner portals of Okuru, a digital gift card platform. The system empowers partners to seamlessly create and manage gift cards that consumers can purchase, gift, or redeem in-store.',
+    problem: 'Managing a multi-tenant gift card ecosystem requires secure, granular control over country/currency configurations, complex promotional logic, and restricted administrative access.',
+    approach: 'Leveraged Next.js and TypeScript for a robust, type-safe frontend architecture, integrated with Firebase for secure, real-time authentication workflows.',
+    solution: 'Built a full Role-Based Access Control (RBAC) system allowing Super Admins to define permission groups (CRUD). Implemented key configuration suites for global settings, affiliate/referral limits, and dynamic purchase discount codes.',
+    codeSnippet: `// Example RBAC Permission Check
+export function hasPermission(userRoles: string[], requiredPermission: string): boolean {
+  return userRoles.some(role => permissions[role]?.includes(requiredPermission));
 }`,
-    codeLanguage: 'css',
-    role: 'Lead Frontend Engineer',
-    timeline: '3 Months (Oct - Dec 2024)',
-    techStack: ['React 19', 'Tailwind v4', 'TypeScript', 'Framer Motion'],
-    image: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80',
+    codeLanguage: 'TypeScript',
+    role: 'Frontend Engineer',
+    timeline: 'Completed',
+    techStack: ['Next.js', 'TypeScript', 'Firebase', 'Tailwind CSS'],
+    image: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=800&q=80',
     gallery: [
-      'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=600&q=80',
       'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=600&q=80'
     ],
     metrics: [
-      '98/100 Lighthouse Performance score average.',
-      'Reduced initial bundle sizes by 42% compared to standard styling libraries.',
-      'Starred by 2,400+ developers on GitHub.'
+      'Successfully deployed robust Role-Based Access Control (RBAC) for Super Admins.',
+      'Secured administration dashboard using Firebase Authentication.',
+      'Streamlined global expansion with multi-currency and country configuration panels.'
     ],
-    likes: 142,
-    views: 1240,
+    likes: 0,
+    views: 0,
     isFeatured: true,
-    liveUrl: 'https://neofuturism.dev',
-    repoUrl: 'https://github.com/fluxfolio/neofuturism-ui'
+    liveUrl: '',
+    repoUrl: ''
   },
   {
-    id: 'cloudsync-orchestrator',
-    title: 'CloudSync Orchestrator',
-    slug: 'cloudsync-orchestrator',
-    subtitle: 'Real-time WebSocket monitoring system for microservice orchestration.',
-    description: 'A robust administration interface visualizing file synchronization pipelines, edge cache distributions, and API gateway health statuses in real time.',
-    problem: 'DevOps pipelines lacked readable visual aids. CLI trackers made it difficult to pinpoint network congestion bottlenecks and active websocket failure rates quickly.',
-    approach: 'I introduced an visual canvas backed by SVG nodes, WebSockets for push notifications, and high-contrast alert highlights for system failures.',
-    solution: 'Designed an interactive analytics control center featuring canvas graphs, draggable service nodes, and instantaneous status filters.',
-    codeSnippet: `const socket = new WebSocket('wss://api.cloudsync.io/live');
-socket.onmessage = (event) => {
-  const data = JSON.parse(event.data);
-  dispatch({ type: 'UPDATE_NODE', payload: data });
-};`,
-    codeLanguage: 'typescript',
-    role: 'Fullstack Architect',
-    timeline: '6 Months (May - Nov 2024)',
-    techStack: ['Next.js', 'WebSockets', 'Canvas API', 'Tailwind CSS'],
-    image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=800&q=80',
-    gallery: [
-      'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=600&q=80'
-    ],
-    metrics: [
-      'Visualized synchronization feeds averaging 12,000 requests per minute.',
-      'Reduced average mean-time-to-resolution (MTTR) by 28% for infrastructure operations.',
-      'Real-time dashboard rendering under 60fps average.'
-    ],
-    likes: 89,
-    views: 940,
-    isFeatured: true,
-    liveUrl: 'https://cloudsync-orchestrator.com',
-    repoUrl: 'https://github.com/fluxfolio/cloudsync'
-  },
-  {
-    id: 'quantum-ledger-explorer',
-    title: 'Quantum Ledger Explorer',
-    slug: 'quantum-ledger-explorer',
-    subtitle: 'Cryptographic ledger visualizer with real-time audit trails.',
-    description: 'A client-side explorer validating cryptographic blocks, network signatures, and tree hierarchies using interactive structural nodes.',
-    problem: 'Block auditing was traditionally a parsing-heavy task, forcing developers to scan through massive JSON blocks to trace specific cross-chain smart-contract calls.',
-    approach: 'Engineered a highly optimized node renderer using SVG hierarchies, combined with smart-filtering search fields.',
-    solution: 'Delivered an elegant web interface where block linkages are laid out chronologically and users can inspect detailed transactions in expandable slides.',
-    codeSnippet: `export function computeMerkleRoot(leaves: string[]): string {
-  if (leaves.length === 1) return leaves[0];
-  const nextLevel = [];
-  for (let i = 0; i < leaves.length; i += 2) {
-    nextLevel.push(sha256(leaves[i] + (leaves[i + 1] || '')));
-  }
-  return computeMerkleRoot(nextLevel);
+    id: 'knowband',
+    title: 'Knowband E-Commerce Modules & AI Tools',
+    slug: 'knowband-ecommerce-modules-ai-tools',
+    subtitle: 'Designing high-conversion e-commerce plugins and AI integrations for global platforms.',
+    description: 'Developed and enhanced multiple high-traffic e-commerce modules for OpenCart and PrestaShop to boost store functionality and conversions. Built marketplace integrations for eBay, Etsy, and Google Shopping, alongside developing advanced tools like Store Locator, Affiliate Programs, Shipping Timers, and Supercheckout. Also implemented cutting-edge AI utilities including a Content Generator, LLM TXT Generator, and an interactive chatbot.',
+    problem: 'E-commerce store owners lacked seamless integrations with global marketplaces and modern AI-driven engagement tools to increase customer retention and sales conversion.',
+    approach: 'Utilized PHP (MVC architecture) paired with standard web technologies to build native OpenCart/PrestaShop extensions. Integrated a Qdrant vector database to power fast, context-aware AI interactions.',
+    solution: 'Successfully rolled out automated extensions like Supercheckout and Automatic Related Products. Provided robust technical support and custom code builds for global enterprise clients.',
+    codeSnippet: `<?php
+// Traditional PHP MVC Controller pattern for module initialization
+class ControllerExtensionModuleKnowband extends Controller {
+    public function index() {
+        $this->load->language('extension/module/knowband');
+        // AI Vector Search / Module Config logic here
+    }
 }`,
-    codeLanguage: 'typescript',
-    role: 'Security Engineer',
-    timeline: '2 Months (Jan - Mar 2025)',
-    techStack: ['TypeScript', 'SVG rendering', 'Cryptography', 'Next.js'],
-    image: 'https://images.unsplash.com/photo-1509023464722-18d996393ca8?auto=format&fit=crop&w=800&q=80',
+    codeLanguage: 'PHP',
+    role: 'Full Stack Engineer',
+    timeline: '1+ Year (Nov 2024 - March 2026)',
+    techStack: ['PHP (MVC)', 'HTML5', 'CSS3', 'JavaScript', 'Qdrant Vector DB'],
+    image: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80',
     gallery: [
-      'https://images.unsplash.com/photo-1639762681485-074b7f938ba0?auto=format&fit=crop&w=600&q=80'
+      'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=600&q=80'
     ],
     metrics: [
-      'Processed block verification in under 5ms completely on the client side.',
-      'Audited transaction records exceeding 50,000 items in single-session charts.',
-      '100% compliant with standard accessibility audits.'
+      'Shipped extensions natively supporting eBay, Etsy, and Google Shopping.',
+      'Integrated cutting-edge LLM TXT Generation and Content Tools natively into CMS platforms.',
+      'Optimized conversion metrics via customized Supercheckout & dynamic timers.'
     ],
-    likes: 74,
-    views: 680,
-    isFeatured: false,
-    liveUrl: 'https://quantum-ledger.dev',
-    repoUrl: 'https://github.com/fluxfolio/quantum-ledger'
+    likes: 0,
+    views: 0,
+    isFeatured: true,
+    liveUrl: 'https://www.knowband.com/',
+    repoUrl: ''
   },
   {
-    id: 'devflow-editor',
-    title: 'DevFlow Block Editor',
-    slug: 'devflow-editor',
-    subtitle: 'A structural, block-based WYSIWYG editor for developers.',
-    description: 'A modular, high-contrast editor allowing content writers to build technical articles with custom code blocks, inline previews, and layout structures.',
-    problem: 'Traditional rich editors struggle with syntax highlight maintenance, multi-line code block indentation, and semantic layout tags.',
-    approach: 'Created an in-memory block editor state mapping blocks to React nodes. Built inline live syntax highlight renderers.',
-    solution: 'Designed an elegant, administrative WYSIWYG editor containing post metadata management, instant preview views, and drag-and-drop media cards.',
-    codeSnippet: `const editorState = [
-  { id: 'b1', type: 'heading', value: 'Mastering Layouts' },
-  { id: 'b2', type: 'code', value: 'const x = 5;', lang: 'javascript' }
-];`,
-    codeLanguage: 'javascript',
-    role: 'UX Developer',
-    timeline: '4 Months (Jun - Oct 2024)',
-    techStack: ['React', 'Zustand', 'PrismJS', 'CSS Modules'],
-    image: 'https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?auto=format&fit=crop&w=800&q=80',
-    gallery: [
-      'https://images.unsplash.com/photo-1542831371-29b0f74f9713?auto=format&fit=crop&w=600&q=80'
-    ],
+    id: 'fit-init',
+    title: 'Fit-Init | Smart AI Self-Defence & Yoga Trainer',
+    slug: 'fit-init-smart-ai-self-defence-yoga-trainer',
+    subtitle: 'Real-time Computer Vision wellness platform for posture correction.',
+    description: 'Developed a full-stack AI-driven wellness platform designed to provide real-time pose tracking, joint analysis, and visual correction for users practicing self-defence routines and yoga postures.',
+    problem: 'Without live instruction, remote fitness users struggle to know if their form is correct, which can lead to injury or ineffective training.',
+    approach: 'Engineered a computer vision pipeline using MediaPipe and TensorFlow Hub to extract skeletal coordinates from live video, passing telemetry to a lightweight Python Flask backend.',
+    solution: 'Implemented complex geometric joint-angle analysis logic to flag incorrect alignments immediately, delivering real-time corrections via a high-performance streaming REST API.',
+    codeSnippet: `# Angle calculation snippet for skeleton tracking
+import cv2
+import mediapipe as mp
+
+def calculate_angle(a, b, c):
+    # Vector math logic to calculate real-time joint positions
+    pass`,
+    codeLanguage: 'Python',
+    role: 'Full Stack AI Engineer',
+    timeline: 'Completed',
+    techStack: ['Python', 'Flask', 'MediaPipe', 'TensorFlow Hub', 'REST API'],
+    image: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=800&q=80',
+    gallery: [],
     metrics: [
-      'Average key-input latency under 1.5ms.',
-      'Used by 15 tech blogs for creating development posts.',
-      'Supports auto-saving and full history revision steps.'
+      '90-95% accuracy rate achieved in live posture detection and joint-angle correction.',
+      'Established high-speed performance telemetry via real-time REST APIs.',
+      'Successfully deployed scalable Deep Learning modules using TensorFlow Hub.'
     ],
-    likes: 110,
-    views: 1120,
-    isFeatured: true,
-    liveUrl: 'https://devflow-editor.dev',
-    repoUrl: 'https://github.com/fluxfolio/devflow-wysiwyg'
+    likes: 0,
+    views: 0,
+    isFeatured: false,
+    liveUrl: '',
+    repoUrl: ''
   }
 ];
 

@@ -4,9 +4,10 @@ import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import GlassCard from '../../components/GlassCard';
 import { Quiz, QuizQuestion } from '../../data/mockData';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 
 export default function GamesCenter() {
+  const router = useRouter();
   const { quizzes, quizProgress, submitQuizScore, isAdmin, addOrUpdateQuiz, deleteQuiz } = useApp();
 
   // Navigation / Gameplay states
@@ -32,7 +33,6 @@ export default function GamesCenter() {
     }
   ]);
 
-  const router = useRouter();
 
   const handleStartQuiz = (quiz: Quiz) => {
     setActiveQuiz(quiz);

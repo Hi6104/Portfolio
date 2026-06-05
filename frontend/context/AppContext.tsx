@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Project, Post, Comment, Quiz, mockProjects, mockPosts, mockComments, mockQuizzes } from '../data/mockData';
+import { getProjects, getPosts, getComments as fetchComments, getQuizzes, postComment as apiPostComment } from '../data/api';
 
 interface AppContextType {
   projects: Project[];
@@ -66,38 +67,29 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     setMounted(true);
     
-    // Load initial data
-    const localProjects = localStorage.getItem('flux_projects');
-    const localPosts = localStorage.getItem('flux_posts');
-    const localComments = localStorage.getItem('flux_comments');
-    const localQuizzes = localStorage.getItem('flux_quizzes');
+    // Fetch data from Express API
+    const loadApiData = async () => {
+      try {
+        const [apiProjects, apiPosts, apiComments, apiQuizzes] = await Promise.all([
+          getProjects(),
+          getPosts(),
+          fetchComments('', ''),
+          getQuizzes()
+        ]);
+        setProjects(apiProjects);
+        setPosts(apiPosts);
+        setComments(apiComments);
+        setQuizzes(apiQuizzes);
+      } catch (err) {
+        console.error("Failed to load initial data from API", err);
+      }
+    };
+
+    loadApiData();
+
     const localIsAdmin = localStorage.getItem('flux_is_admin');
     const localTheme = localStorage.getItem('flux_theme');
     const localProgress = localStorage.getItem('flux_quiz_progress');
-
-    if (localProjects) setProjects(JSON.parse(localProjects));
-    else {
-      setProjects(mockProjects);
-      localStorage.setItem('flux_projects', JSON.stringify(mockProjects));
-    }
-
-    if (localPosts) setPosts(JSON.parse(localPosts));
-    else {
-      setPosts(mockPosts);
-      localStorage.setItem('flux_posts', JSON.stringify(mockPosts));
-    }
-
-    if (localComments) setComments(JSON.parse(localComments));
-    else {
-      setComments(mockComments);
-      localStorage.setItem('flux_comments', JSON.stringify(mockComments));
-    }
-
-    if (localQuizzes) setQuizzes(JSON.parse(localQuizzes));
-    else {
-      setQuizzes(mockQuizzes);
-      localStorage.setItem('flux_quizzes', JSON.stringify(mockQuizzes));
-    }
 
     if (localIsAdmin === 'true') setIsAdmin(true);
     if (localTheme) {
@@ -198,29 +190,19 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   };
 
   // --- Comment Actions ---
-  const addComment = (targetType: 'project' | 'post', targetId: string, authorName: string, authorEmail: string, content: string) => {
-    const isAntiSpam = content.toLowerCase().includes('bitcoin') || content.toLowerCase().includes('click link') || content.toLowerCase().includes('free cash');
-    const newComment: Comment = {
-      id: 'comment_' + Date.now(),
-      targetType,
-      targetId,
-      authorName: authorName || 'Anonymous Reader',
-      authorEmail: authorEmail || 'anonymous@fluxfolio.dev',
-      content,
-      date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-      isApproved: false, // Default to pending moderation
-      isFlagged: isAntiSpam
-    };
-
-    const updatedComments = [newComment, ...comments];
-    setComments(updatedComments);
-    saveToLocal('flux_comments', updatedComments);
-
-    // Update comment counts on post if target is post
-    if (targetType === 'post') {
-      const updatedPosts = posts.map(p => p.id === targetId ? { ...p, commentsCount: p.commentsCount + 1 } : p);
-      setPosts(updatedPosts);
-      saveToLocal('flux_posts', updatedPosts);
+  const addComment = async (targetType: 'project' | 'post', targetId: string, authorName: string, authorEmail: string, content: string) => {
+    try {
+      const newComment = await apiPostComment({ targetType, targetId, authorName, authorEmail, content });
+      const updatedComments = [newComment, ...comments];
+      setComments(updatedComments);
+      
+      // Update comment counts on post if target is post
+      if (targetType === 'post') {
+        const updatedPosts = posts.map(p => p.id === targetId ? { ...p, commentsCount: p.commentsCount + 1 } : p);
+        setPosts(updatedPosts);
+      }
+    } catch(err) {
+      console.error("Failed to post comment to API", err);
     }
   };
 
