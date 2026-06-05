@@ -2,21 +2,32 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Project, Post, Comment, Quiz, mockProjects, mockPosts, mockComments, mockQuizzes } from '../data/mockData';
-import { getProjects, getPosts, getComments as fetchComments, getQuizzes, postComment as apiPostComment } from '../data/api';
+import { getProjects, getPosts, getComments as fetchComments, getQuizzes, postComment as apiPostComment, submitGameScoreApi, getGameScoresApi, recordInteraction } from '../data/api';
+
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  authProvider: string;
+}
 
 interface AppContextType {
   projects: Project[];
   posts: Post[];
   comments: Comment[];
   quizzes: Quiz[];
+  currentUser: User | null;
   isAdmin: boolean;
   theme: 'dark' | 'light';
-  quizProgress: Record<string, { completed: boolean; score: number; badgesEarned: string[] }>;
+  quizProgress: Record<string, { completed: boolean; score: number }>;
   searchQuery: string;
   setSearchQuery: (query: string) => void;
   toggleTheme: () => void;
-  loginAdmin: () => boolean;
-  logoutAdmin: () => void;
+  loginUser: (user: User) => void;
+  logoutUser: () => void;
+  loginAdmin: () => boolean; // Keeping for legacy
+  logoutAdmin: () => void; // Keeping for legacy
   
   // Project Actions
   addProject: (project: Omit<Project, 'likes' | 'views'>) => void;
@@ -58,9 +69,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [posts, setPosts] = useState<Post[]>([]);
   const [comments, setComments] = useState<Comment[]>([]);
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
-  const [quizProgress, setQuizProgress] = useState<Record<string, { completed: boolean; score: number; badgesEarned: string[] }>>({});
+  const [quizProgress, setQuizProgress] = useState<Record<string, { completed: boolean; score: number }>>({});
   const [searchQuery, setSearchQuery] = useState('');
 
   // Handle mounting to avoid hydration mismatches
@@ -88,12 +100,22 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     loadApiData();
 
     const localIsAdmin = localStorage.getItem('flux_is_admin');
+    const localUser = localStorage.getItem('flux_current_user');
     const localTheme = localStorage.getItem('flux_theme');
     const localProgress = localStorage.getItem('flux_quiz_progress');
 
     if (localIsAdmin === 'true') setIsAdmin(true);
+    if (localUser) {
+      try {
+        const user = JSON.parse(localUser);
+        setCurrentUser(user);
+        if (user.role === 'admin') setIsAdmin(true);
+      } catch (e) {}
+    }
+
     if (localTheme) {
       setTheme(localTheme as 'dark' | 'light');
+      document.documentElement.classList.toggle('dark', localTheme === 'dark');
       document.documentElement.classList.toggle('light', localTheme === 'light');
     } else {
       document.documentElement.classList.add('dark');
@@ -101,6 +123,59 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
     if (localProgress) setQuizProgress(JSON.parse(localProgress));
   }, []);
+
+  // Sync scores with backend when user logs in
+  useEffect(() => {
+    if (!currentUser) return;
+    
+    const syncScores = async () => {
+      try {
+        const dbScores = await getGameScoresApi(currentUser.id);
+        
+        // Use functional state update to always get latest quizProgress
+        setQuizProgress(prevProgress => {
+          const newProgress = { ...prevProgress };
+          let madeChanges = false;
+
+          // Merge DB scores into local
+          dbScores.forEach((row: any) => {
+            const quizId = row.quizId;
+            
+            if (!newProgress[quizId] || newProgress[quizId].score < row.score) {
+              newProgress[quizId] = {
+                completed: row.completed === 1 || row.completed === true,
+                score: row.score
+              };
+              madeChanges = true;
+            }
+          });
+
+          if (madeChanges) {
+            saveToLocal('flux_quiz_progress', newProgress);
+          }
+          
+          // Background sync of local-only scores up to DB
+          for (const [quizId, localData] of Object.entries(prevProgress)) {
+            const dbRow = dbScores.find((r: any) => r.quizId === quizId);
+            if (!dbRow || dbRow.score < localData.score) {
+              submitGameScoreApi(
+                currentUser.id, 
+                quizId, 
+                localData.score, 
+                localData.completed
+              ).catch(e => console.error(e));
+            }
+          }
+
+          return madeChanges ? newProgress : prevProgress;
+        });
+      } catch (err) {
+        console.error('Failed to sync game scores', err);
+      }
+    };
+    
+    syncScores();
+  }, [currentUser]);
 
   // Save actions to local storage
   const saveToLocal = (key: string, data: any) => {
@@ -120,6 +195,26 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const loginUser = (user: User) => {
+    setCurrentUser(user);
+    localStorage.setItem('flux_current_user', JSON.stringify(user));
+    if (user.role === 'admin') {
+      setIsAdmin(true);
+      localStorage.setItem('flux_is_admin', 'true');
+    }
+  };
+
+  const logoutUser = () => {
+    setCurrentUser(null);
+    setIsAdmin(false);
+    localStorage.removeItem('flux_current_user');
+    localStorage.setItem('flux_is_admin', 'false');
+    // Clear local quiz progress so it doesn't bleed into the next user's session
+    localStorage.removeItem('flux_quiz_progress');
+    setQuizProgress({});
+  };
+
+  // Keeping these for legacy compat
   const loginAdmin = () => {
     setIsAdmin(true);
     localStorage.setItem('flux_is_admin', 'true');
@@ -151,16 +246,37 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     saveToLocal('flux_projects', updated);
   };
 
-  const likeProject = (id: string) => {
-    const updated = projects.map(p => p.id === id ? { ...p, likes: p.likes + 1 } : p);
-    setProjects(updated);
-    saveToLocal('flux_projects', updated);
+  const getVisitorId = () => {
+    let vid = localStorage.getItem('flux_visitor_id');
+    if (!vid) {
+      vid = 'v_' + Math.random().toString(36).substr(2, 9) + Date.now().toString(36);
+      localStorage.setItem('flux_visitor_id', vid);
+    }
+    return vid;
   };
 
-  const incrementProjectViews = (id: string) => {
-    const updated = projects.map(p => p.id === id ? { ...p, views: p.views + 1 } : p);
-    setProjects(updated);
-    saveToLocal('flux_projects', updated);
+  const likeProject = async (id: string) => {
+    const userId = currentUser?.id || getVisitorId();
+    try {
+      const res = await recordInteraction('project', id, userId, 'like');
+      if (res.success && res.count !== undefined) {
+        const updated = projects.map(p => p.id === id ? { ...p, likes: res.count! } : p);
+        setProjects(updated);
+        saveToLocal('flux_projects', updated);
+      }
+    } catch(err) { console.error('Failed to like project', err); }
+  };
+
+  const incrementProjectViews = async (id: string) => {
+    const userId = currentUser?.id || getVisitorId();
+    try {
+      const res = await recordInteraction('project', id, userId, 'view');
+      if (res.success && res.count !== undefined) {
+        const updated = projects.map(p => p.id === id ? { ...p, views: res.count! } : p);
+        setProjects(updated);
+        saveToLocal('flux_projects', updated);
+      }
+    } catch(err) { console.error('Failed to view project', err); }
   };
 
   // --- Post Actions ---
@@ -183,10 +299,16 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     saveToLocal('flux_posts', updated);
   };
 
-  const likePost = (id: string) => {
-    const updated = posts.map(p => p.id === id ? { ...p, likes: p.likes + 1 } : p);
-    setPosts(updated);
-    saveToLocal('flux_posts', updated);
+  const likePost = async (id: string) => {
+    const userId = currentUser?.id || getVisitorId();
+    try {
+      const res = await recordInteraction('post', id, userId, 'like');
+      if (res.success && res.count !== undefined) {
+        const updated = posts.map(p => p.id === id ? { ...p, likes: res.count! } : p);
+        setPosts(updated);
+        saveToLocal('flux_posts', updated);
+      }
+    } catch(err) { console.error('Failed to like post', err); }
   };
 
   // --- Comment Actions ---
@@ -233,25 +355,28 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   };
 
   // --- Quiz Actions ---
-  const submitQuizScore = (quizId: string, score: number) => {
+  const submitQuizScore = async (quizId: string, score: number) => {
     const quiz = quizzes.find(q => q.id === quizId);
     if (!quiz) return;
-    
-    const percentage = (score / quiz.questionsCount) * 100;
-    const badgeName = percentage === 100 ? `${quiz.title} Expert` : percentage >= 70 ? `${quiz.title} Intermediate` : '';
-    
+
     const newProgress = {
       ...quizProgress,
       [quizId]: {
         completed: true,
-        score,
-        badgesEarned: badgeName 
-          ? Array.from(new Set([...(quizProgress[quizId]?.badgesEarned || []), badgeName]))
-          : (quizProgress[quizId]?.badgesEarned || [])
+        score
       }
     };
+    
     setQuizProgress(newProgress);
     saveToLocal('flux_quiz_progress', newProgress);
+
+    if (currentUser) {
+      try {
+        await submitGameScoreApi(currentUser.id, quizId, score, true);
+      } catch (err) {
+        console.error('Failed to save score to database', err);
+      }
+    }
   };
 
   const addOrUpdateQuiz = (quiz: Quiz) => {
@@ -338,12 +463,15 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         posts,
         comments,
         quizzes,
+        currentUser,
         isAdmin,
         theme,
         quizProgress,
         searchQuery,
         setSearchQuery,
         toggleTheme,
+        loginUser,
+        logoutUser,
         loginAdmin,
         logoutAdmin,
         addProject,

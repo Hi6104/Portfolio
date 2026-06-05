@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
 import GlassCard from '../../components/GlassCard';
 import { useRouter } from 'next/navigation';
+import { toast } from 'react-toastify';
 
 interface EditorBlock {
   id: string;
@@ -20,10 +21,10 @@ export default function WYSIWYGEditor() {
   // Redirect non-admins
   useEffect(() => {
     if (!isAdmin) {
-      alert('Access restricted. Please sign in as an administrator to load editor suites.');
+      toast.error('Access restricted. Please sign in as an administrator to load editor suites.');
       router.push('/login');
     }
-  }, [isAdmin]);
+  }, [isAdmin, router]);
 
   // Form states
   const [title, setTitle] = useState('');
@@ -95,7 +96,7 @@ export default function WYSIWYGEditor() {
 
   const handlePublish = () => {
     if (!title.trim()) {
-      alert('Please provide a post title.');
+      toast.error('Please provide a post title.');
       return;
     }
 
@@ -122,7 +123,7 @@ export default function WYSIWYGEditor() {
     };
 
     addPost(postObject);
-    alert('Case study published successfully to ledger database!');
+    toast.success('Case study published successfully to ledger database!');
     router.push(`/docs/${newSlug}`);
   };
 
@@ -149,16 +150,16 @@ export default function WYSIWYGEditor() {
       <div className="max-w-7xl mx-auto relative z-10 space-y-8">
 
         {/* Editor Main Header bar */}
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-zinc-900 light:border-slate-200 pb-6">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-slate-300 dark:border-zinc-900 light:border-slate-200 pb-6">
           <div>
-            <h1 className="text-2xl md:text-3xl font-extrabold text-white light:text-slate-900">Case Editor Suite</h1>
-            <p className="text-xs text-zinc-500 light:text-slate-500 mt-1">Design and publish technical block articles.</p>
+            <h1 className="text-2xl md:text-3xl font-extrabold text-zinc-900 dark:text-white light:text-slate-900">Case Editor Suite</h1>
+            <p className="text-xs text-slate-500 dark:text-zinc-500 light:text-slate-500 mt-1">Design and publish technical block articles.</p>
           </div>
 
           <div className="flex items-center gap-2.5">
             <button
               onClick={() => setPreviewMode(!previewMode)}
-              className="px-4 py-2 bg-zinc-900 light:bg-slate-100 border border-zinc-800 light:border-slate-250 text-white light:text-slate-800 text-xs font-bold rounded-xl transition"
+              className="px-4 py-2 bg-white dark:bg-zinc-900 light:bg-slate-100 border border-slate-200 dark:border-zinc-800 light:border-slate-250 text-zinc-900 dark:text-white light:text-slate-800 text-xs font-bold rounded-xl transition"
             >
               {previewMode ? 'Edit Blocks' : 'Live Preview'}
             </button>
@@ -170,7 +171,7 @@ export default function WYSIWYGEditor() {
             </button>
             <button
               onClick={handlePublish}
-              className="px-5 py-2 bg-brand-purple hover:bg-brand-purple-dark text-white text-xs font-extrabold rounded-xl transition active:scale-[0.98] shadow-md"
+              className="px-5 py-2 bg-brand-purple hover:bg-brand-purple-dark text-zinc-900 dark:text-white text-xs font-extrabold rounded-xl transition active:scale-[0.98] shadow-md"
             >
               Publish Article
             </button>
@@ -185,13 +186,13 @@ export default function WYSIWYGEditor() {
 
             {previewMode ? (
               /* Live Preview Screen representation */
-              <GlassCard hoverEffect={false} className="border-zinc-900 bg-zinc-950/80 p-8 space-y-6 max-h-[70vh] overflow-y-auto">
+              <GlassCard hoverEffect={false} className="border-slate-300 dark:border-zinc-900 bg-slate-50 dark:bg-zinc-950/80 p-8 space-y-6 max-h-[70vh] overflow-y-auto">
                 <div className="text-[10px] font-extrabold text-brand-purple uppercase tracking-widest">Live Compiled Sandbox</div>
-                <h1 className="text-2xl md:text-3xl font-black text-white">{title || 'Untitled Case Study'}</h1>
-                <p className="text-sm text-zinc-400 font-semibold">{subtitle || 'Provide a subtitle in the right rail metadata panel.'}</p>
+                <h1 className="text-2xl md:text-3xl font-black text-zinc-900 dark:text-white">{title || 'Untitled Case Study'}</h1>
+                <p className="text-sm text-slate-600 dark:text-zinc-400 font-semibold">{subtitle || 'Provide a subtitle in the right rail metadata panel.'}</p>
                 <div
                   dangerouslySetInnerHTML={{ __html: compileBlocksToHTML() }}
-                  className="rich-content text-sm text-zinc-300 space-y-5 pt-6 border-t border-zinc-900"
+                  className="rich-content text-sm text-slate-700 dark:text-zinc-300 space-y-5 pt-6 border-t border-slate-300 dark:border-zinc-900"
                 />
               </GlassCard>
             ) : (
@@ -199,14 +200,14 @@ export default function WYSIWYGEditor() {
               <div className="space-y-4">
 
                 {/* Title Input block */}
-                <GlassCard hoverEffect={false} className="border-zinc-900/60 bg-zinc-950/60 !p-5">
+                <GlassCard hoverEffect={false} className="border-slate-300 dark:border-zinc-900/60 bg-slate-50 dark:bg-zinc-950/60 !p-5">
                   <input
                     type="text"
                     required
                     placeholder="Enter technical title here (e.g. Mastering Web Assembly compiler configurations)"
                     value={title}
                     onChange={e => { setTitle(e.target.value); setSeoTitle(e.target.value); }}
-                    className="w-full text-base font-bold bg-transparent border-0 focus:ring-0 focus:outline-none placeholder-zinc-700 text-white"
+                    className="w-full text-base font-bold bg-transparent border-0 focus:ring-0 focus:outline-none placeholder-zinc-700 text-zinc-900 dark:text-white"
                   />
                   <input
                     type="text"
@@ -222,7 +223,7 @@ export default function WYSIWYGEditor() {
                   {blocks.map((block, index) => (
                     <div
                       key={block.id}
-                      className="group p-4 bg-zinc-900/30 border border-zinc-900/80 rounded-2xl relative transition hover:border-brand-purple/20"
+                      className="group p-4 bg-white dark:bg-zinc-900/30 border border-slate-300 dark:border-zinc-900/80 rounded-2xl relative transition hover:border-brand-purple/20"
                     >
                       {/* Floating block type label & Delete trigger */}
                       <div className="flex items-center justify-between mb-2">
@@ -244,7 +245,7 @@ export default function WYSIWYGEditor() {
                           type="text"
                           value={block.value}
                           onChange={e => updateBlockValue(block.id, e.target.value)}
-                          className="w-full text-sm font-extrabold bg-transparent border-none focus:ring-0 text-white focus:outline-none placeholder-zinc-750"
+                          className="w-full text-sm font-extrabold bg-transparent border-none focus:ring-0 text-zinc-900 dark:text-white focus:outline-none placeholder-zinc-750"
                         />
                       )}
 
@@ -253,7 +254,7 @@ export default function WYSIWYGEditor() {
                           rows={2}
                           value={block.value}
                           onChange={e => updateBlockValue(block.id, e.target.value)}
-                          className="w-full text-xs leading-relaxed bg-transparent border-none focus:ring-0 text-zinc-300 focus:outline-none placeholder-zinc-750"
+                          className="w-full text-xs leading-relaxed bg-transparent border-none focus:ring-0 text-slate-700 dark:text-zinc-300 focus:outline-none placeholder-zinc-750"
                         />
                       )}
 
@@ -264,7 +265,7 @@ export default function WYSIWYGEditor() {
                             <select
                               value={block.language || 'typescript'}
                               onChange={e => updateBlockLanguage(block.id, e.target.value)}
-                              className="bg-zinc-950 border border-zinc-850 rounded p-1 text-[9px] text-brand-cyan focus:outline-none"
+                              className="bg-slate-50 dark:bg-zinc-950 border border-zinc-850 rounded p-1 text-[9px] text-brand-cyan focus:outline-none"
                             >
                               <option value="typescript">TypeScript</option>
                               <option value="javascript">JavaScript</option>
@@ -276,7 +277,7 @@ export default function WYSIWYGEditor() {
                             rows={4}
                             value={block.value}
                             onChange={e => updateBlockValue(block.id, e.target.value)}
-                            className="w-full text-[10px] font-mono bg-zinc-950 p-3 rounded-lg border border-zinc-900 focus:ring-0 text-brand-cyan focus:outline-none"
+                            className="w-full text-[10px] font-mono bg-slate-50 dark:bg-zinc-950 p-3 rounded-lg border border-slate-300 dark:border-zinc-900 focus:ring-0 text-brand-cyan focus:outline-none"
                           />
                         </div>
                       )}
@@ -295,28 +296,28 @@ export default function WYSIWYGEditor() {
                 </div>
 
                 {/* Add Block Controls */}
-                <div className="flex items-center justify-center gap-2.5 p-4 border-2 border-dashed border-zinc-900 rounded-3xl bg-zinc-950/20">
+                <div className="flex items-center justify-center gap-2.5 p-4 border-2 border-dashed border-slate-300 dark:border-zinc-900 rounded-3xl bg-slate-50 dark:bg-zinc-950/20">
                   <button
                     onClick={() => addBlock('heading')}
-                    className="px-3.5 py-2 bg-zinc-900 hover:bg-zinc-850 text-white text-[10px] font-extrabold rounded-xl transition"
+                    className="px-3.5 py-2 bg-white dark:bg-zinc-900 hover:bg-zinc-850 text-zinc-900 dark:text-white text-[10px] font-extrabold rounded-xl transition"
                   >
                     + Heading Block
                   </button>
                   <button
                     onClick={() => addBlock('text')}
-                    className="px-3.5 py-2 bg-zinc-900 hover:bg-zinc-850 text-white text-[10px] font-extrabold rounded-xl transition"
+                    className="px-3.5 py-2 bg-white dark:bg-zinc-900 hover:bg-zinc-850 text-zinc-900 dark:text-white text-[10px] font-extrabold rounded-xl transition"
                   >
                     + Text Block
                   </button>
                   <button
                     onClick={() => addBlock('code')}
-                    className="px-3.5 py-2 bg-zinc-900 hover:bg-zinc-850 text-white text-[10px] font-extrabold rounded-xl transition"
+                    className="px-3.5 py-2 bg-white dark:bg-zinc-900 hover:bg-zinc-850 text-zinc-900 dark:text-white text-[10px] font-extrabold rounded-xl transition"
                   >
                     + Code Block
                   </button>
                   <button
                     onClick={() => addBlock('callout')}
-                    className="px-3.5 py-2 bg-zinc-900 hover:bg-zinc-850 text-white text-[10px] font-extrabold rounded-xl transition"
+                    className="px-3.5 py-2 bg-white dark:bg-zinc-900 hover:bg-zinc-850 text-zinc-900 dark:text-white text-[10px] font-extrabold rounded-xl transition"
                   >
                     + Callout Block
                   </button>
@@ -331,8 +332,8 @@ export default function WYSIWYGEditor() {
           <div className="lg:col-span-4 space-y-6">
 
             {/* Classification Card */}
-            <GlassCard hoverEffect={false} className="border-zinc-900/60 bg-zinc-950/60 !p-5 space-y-4">
-              <h3 className="text-xs font-extrabold uppercase tracking-wider text-zinc-400 border-b border-zinc-900 pb-2">
+            <GlassCard hoverEffect={false} className="border-slate-300 dark:border-zinc-900/60 bg-slate-50 dark:bg-zinc-950/60 !p-5 space-y-4">
+              <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-600 dark:text-zinc-400 border-b border-slate-300 dark:border-zinc-900 pb-2">
                 Classification & Publish
               </h3>
 
@@ -341,7 +342,7 @@ export default function WYSIWYGEditor() {
                 <select
                   value={isPublished ? 'published' : 'draft'}
                   onChange={e => setIsPublished(e.target.value === 'published')}
-                  className="w-full bg-zinc-900 text-xs text-white p-2.5 rounded-xl border border-zinc-850 focus:outline-none"
+                  className="w-full bg-white dark:bg-zinc-900 text-xs text-zinc-900 dark:text-white p-2.5 rounded-xl border border-zinc-850 focus:outline-none"
                 >
                   <option value="published">Published (Visible Immediately)</option>
                   <option value="draft">Draft (Restricted to Admins)</option>
@@ -353,13 +354,13 @@ export default function WYSIWYGEditor() {
                 <div className="flex gap-2">
                   <button
                     onClick={() => setCategory('blog')}
-                    className={`w-1/2 py-2 text-xs font-bold rounded-xl transition border ${category === 'blog' ? 'bg-brand-purple text-white border-brand-purple' : 'bg-zinc-900 text-zinc-500 border-zinc-850'}`}
+                    className={`w-1/2 py-2 text-xs font-bold rounded-xl transition border ${category === 'blog' ? 'bg-brand-purple text-zinc-900 dark:text-white border-brand-purple' : 'bg-white dark:bg-zinc-900 text-slate-500 dark:text-zinc-500 border-zinc-850'}`}
                   >
                     Blog Post
                   </button>
                   <button
                     onClick={() => setCategory('docs')}
-                    className={`w-1/2 py-2 text-xs font-bold rounded-xl transition border ${category === 'docs' ? 'bg-brand-purple text-white border-brand-purple' : 'bg-zinc-900 text-zinc-500 border-zinc-850'}`}
+                    className={`w-1/2 py-2 text-xs font-bold rounded-xl transition border ${category === 'docs' ? 'bg-brand-purple text-zinc-900 dark:text-white border-brand-purple' : 'bg-white dark:bg-zinc-900 text-slate-500 dark:text-zinc-500 border-zinc-850'}`}
                   >
                     Documentation
                   </button>
@@ -372,7 +373,7 @@ export default function WYSIWYGEditor() {
                   type="text"
                   value={tagsInput}
                   onChange={e => setTagsInput(e.target.value)}
-                  className="w-full bg-zinc-900 text-xs text-white p-2.5 rounded-xl border border-zinc-850 focus:outline-none"
+                  className="w-full bg-white dark:bg-zinc-900 text-xs text-zinc-900 dark:text-white p-2.5 rounded-xl border border-zinc-850 focus:outline-none"
                 />
               </div>
 
@@ -382,14 +383,14 @@ export default function WYSIWYGEditor() {
                   type="text"
                   value={readTime}
                   onChange={e => setReadTime(e.target.value)}
-                  className="w-full bg-zinc-900 text-xs text-white p-2.5 rounded-xl border border-zinc-850 focus:outline-none"
+                  className="w-full bg-white dark:bg-zinc-900 text-xs text-zinc-900 dark:text-white p-2.5 rounded-xl border border-zinc-850 focus:outline-none"
                 />
               </div>
             </GlassCard>
 
             {/* SEO Optimization Fields */}
-            <GlassCard hoverEffect={false} className="border-zinc-900/60 bg-zinc-950/60 !p-5 space-y-4">
-              <h3 className="text-xs font-extrabold uppercase tracking-wider text-zinc-400 border-b border-zinc-900 pb-2">
+            <GlassCard hoverEffect={false} className="border-slate-300 dark:border-zinc-900/60 bg-slate-50 dark:bg-zinc-950/60 !p-5 space-y-4">
+              <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-600 dark:text-zinc-400 border-b border-slate-300 dark:border-zinc-900 pb-2">
                 SEO Search Metadata
               </h3>
 
@@ -400,7 +401,7 @@ export default function WYSIWYGEditor() {
                   placeholder="Focus keyword mapped titles..."
                   value={seoTitle}
                   onChange={e => setSeoTitle(e.target.value)}
-                  className="w-full bg-zinc-900 text-xs text-white p-2.5 rounded-xl border border-zinc-850 focus:outline-none placeholder-zinc-700"
+                  className="w-full bg-white dark:bg-zinc-900 text-xs text-zinc-900 dark:text-white p-2.5 rounded-xl border border-zinc-850 focus:outline-none placeholder-zinc-700"
                 />
               </div>
 
@@ -411,19 +412,19 @@ export default function WYSIWYGEditor() {
                   placeholder="Rich, click-worthy metadata description snippet..."
                   value={seoDescription}
                   onChange={e => setSeoDescription(e.target.value)}
-                  className="w-full bg-zinc-900 text-xs text-white p-2.5 rounded-xl border border-zinc-850 focus:outline-none placeholder-zinc-700"
+                  className="w-full bg-white dark:bg-zinc-900 text-xs text-zinc-900 dark:text-white p-2.5 rounded-xl border border-zinc-850 focus:outline-none placeholder-zinc-700"
                 />
               </div>
             </GlassCard>
 
             {/* Post history tracker */}
-            <GlassCard hoverEffect={false} className="border-zinc-900/60 bg-zinc-950/60 !p-5">
-              <h3 className="text-xs font-extrabold uppercase tracking-wider text-zinc-400 mb-3 border-b border-zinc-900 pb-2">
+            <GlassCard hoverEffect={false} className="border-slate-300 dark:border-zinc-900/60 bg-slate-50 dark:bg-zinc-950/60 !p-5">
+              <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-600 dark:text-zinc-400 mb-3 border-b border-slate-300 dark:border-zinc-900 pb-2">
                 Auto-Save History
               </h3>
-              <div className="space-y-3 text-[10px] font-semibold text-zinc-500">
+              <div className="space-y-3 text-[10px] font-semibold text-slate-500 dark:text-zinc-500">
                 {history.map((h, i) => (
-                  <div key={i} className="flex items-center justify-between border-b border-zinc-900/60 pb-2 last:border-0 last:pb-0">
+                  <div key={i} className="flex items-center justify-between border-b border-slate-300 dark:border-zinc-900/60 pb-2 last:border-0 last:pb-0">
                     <span>Draft save node ({h.blockCount} blocks)</span>
                     <span className="text-zinc-650">{h.time}</span>
                   </div>

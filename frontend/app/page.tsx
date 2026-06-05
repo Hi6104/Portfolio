@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import { toast } from 'react-toastify';
 import { useApp } from '../context/AppContext';
 import GlassCard from '../components/GlassCard';
 import SkillRadar from '../components/SkillRadar';
@@ -53,11 +54,11 @@ export default function Home() {
               Frontend Systems Architect
             </div>
 
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight text-white light:text-slate-900">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight text-zinc-900 dark:text-white light:text-slate-900">
               Level up your <span className="bg-gradient-to-r from-brand-indigo via-brand-purple to-brand-cyan bg-clip-text text-transparent drop-shadow-[0_0_20px_rgba(99,102,241,0.2)]">engineering craft</span>
             </h1>
 
-            <p className="text-base md:text-lg text-zinc-400 light:text-slate-600 max-w-xl mx-auto lg:mx-0 leading-relaxed font-medium">
+            <p className="text-base md:text-lg text-slate-600 dark:text-zinc-400 light:text-slate-600 max-w-xl mx-auto lg:mx-0 leading-relaxed font-medium">
               Welcome to <strong>Fluxfolio</strong>. I design elegant, modular interfaces using React 19, high-performance styling systems, and client-side database synchronization.
             </p>
 
@@ -66,7 +67,7 @@ export default function Home() {
               {skillBadges.map((badge, idx) => (
                 <span
                   key={idx}
-                  className="text-xs font-semibold px-3 py-1 rounded-xl bg-zinc-900/60 light:bg-slate-100 border border-zinc-850 light:border-slate-200 text-zinc-400 light:text-slate-650 hover:text-brand-purple hover:border-brand-purple/40 transition cursor-default"
+                  className="text-xs font-semibold px-3 py-1 rounded-xl bg-white dark:bg-zinc-900/60 light:bg-slate-100 border border-zinc-850 light:border-slate-200 text-slate-600 dark:text-zinc-400 light:text-slate-650 hover:text-brand-purple hover:border-brand-purple/40 transition cursor-default"
                 >
                   {badge}
                 </span>
@@ -77,7 +78,7 @@ export default function Home() {
             <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-4">
               <Link
                 href="/projects"
-                className="w-full sm:w-auto text-center bg-brand-purple hover:bg-brand-purple-dark text-white font-bold px-7 py-3 rounded-2xl transition active:scale-[0.98] shadow-[0_4px_20px_rgba(139,92,246,0.35)]"
+                className="w-full sm:w-auto text-center bg-brand-purple hover:bg-brand-purple-dark text-zinc-900 dark:text-white font-bold px-7 py-3 rounded-2xl transition active:scale-[0.98] shadow-[0_4px_20px_rgba(139,92,246,0.35)]"
               >
                 View Projects
               </Link>
@@ -93,7 +94,7 @@ export default function Home() {
 
           {/* Interactive Hero Illustration: SVG Artboard */}
           <div className="lg:col-span-5 flex justify-center w-full">
-            <GlassCard hoverEffect={false} className="w-full max-w-[420px] aspect-square flex items-center justify-center !p-0 shadow-2xl relative border-zinc-800/80">
+            <GlassCard hoverEffect={false} className="w-full max-w-[420px] aspect-square flex items-center justify-center !p-0 shadow-2xl relative border-slate-200 dark:border-zinc-800/80">
               <div className="absolute inset-0 bg-gradient-to-tr from-brand-indigo/5 to-brand-purple/5 pointer-events-none" />
 
               {/* Abstract code visual artboard */}
@@ -160,7 +161,7 @@ export default function Home() {
         <section className="space-y-6">
           <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-4">
             <div>
-              <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight text-white light:text-slate-900">Featured Systems & Case Studies</h2>
+              <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight text-zinc-900 dark:text-white light:text-slate-900">Featured Systems & Case Studies</h2>
               <p className="text-xs md:text-sm text-zinc-450 light:text-slate-500 mt-1">High-performance custom design tokens and live data dashboards.</p>
             </div>
             <Link
@@ -178,10 +179,10 @@ export default function Home() {
               <GlassCard
                 key={project.id}
                 glowColor={project.id === 'neo-futurism-ui-kit' ? 'purple' : 'indigo'}
-                className="flex flex-col h-full border-zinc-900/60"
+                className="flex flex-col h-full border-slate-300 dark:border-zinc-900/60"
                 onClick={() => router.push(`/projects/${project.id}`)}
               >
-                <div className="relative w-full aspect-video rounded-xl overflow-hidden mb-5 border border-zinc-800/40">
+                <div className="relative w-full aspect-video rounded-xl overflow-hidden mb-5 border border-slate-200 dark:border-zinc-800/40">
                   <img
                     src={project.image}
                     alt={project.title}
@@ -190,14 +191,14 @@ export default function Home() {
                   {/* Floating tech chips */}
                   <div className="absolute top-3 left-3 flex flex-wrap gap-1">
                     {project.techStack.slice(0, 2).map((tech, i) => (
-                      <span key={i} className="text-[10px] font-extrabold bg-black/75 text-zinc-300 px-2 py-0.5 rounded-md border border-white/5">
+                      <span key={i} className="text-[10px] font-extrabold bg-black/75 text-slate-700 dark:text-zinc-300 px-2 py-0.5 rounded-md border border-white/5">
                         {tech}
                       </span>
                     ))}
                   </div>
                 </div>
 
-                <h3 className="text-base font-extrabold text-white light:text-slate-900 group-hover:text-brand-purple transition">
+                <h3 className="text-base font-extrabold text-zinc-900 dark:text-white light:text-slate-900 group-hover:text-brand-purple transition">
                   {project.title}
                 </h3>
 
@@ -205,7 +206,7 @@ export default function Home() {
                   {project.subtitle}
                 </p>
 
-                <div className="flex items-center justify-between mt-5 border-t border-zinc-900 light:border-slate-100 pt-4 text-[10px] font-bold text-zinc-500">
+                <div className="flex items-center justify-between mt-5 border-t border-slate-300 dark:border-zinc-900 light:border-slate-100 pt-4 text-[10px] font-bold text-slate-500 dark:text-zinc-500">
                   <span className="flex items-center gap-1">
                     <svg className="w-3.5 h-3.5 text-zinc-650" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -224,16 +225,16 @@ export default function Home() {
         </section>
 
         {/* ================= SKILL SNAPSHOT SECTION ================= */}
-        <section className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center border-t border-b border-zinc-900 light:border-slate-200 py-16">
+        <section className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center border-t border-b border-slate-300 dark:border-zinc-900 light:border-slate-200 py-16">
           <div className="lg:col-span-5 flex justify-center">
-            <GlassCard hoverEffect={false} className="w-full max-w-[360px] border-zinc-900/60 shadow-xl bg-zinc-950/80">
+            <GlassCard hoverEffect={false} className="w-full max-w-[360px] border-slate-300 dark:border-zinc-900/60 shadow-xl bg-slate-50 dark:bg-zinc-950/80">
               <h3 className="text-sm font-extrabold tracking-widest text-zinc-550 text-center uppercase mb-1">Interactive Vector Radar</h3>
               <SkillRadar />
             </GlassCard>
           </div>
 
           <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
-            <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight text-white light:text-slate-900">
+            <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight text-zinc-900 dark:text-white light:text-slate-900">
               Rigorous technology execution snapshot
             </h2>
 
@@ -242,24 +243,24 @@ export default function Home() {
             </p>
 
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-left max-w-xl mx-auto lg:mx-0">
-              <div className="p-4 bg-zinc-900/30 light:bg-slate-100 rounded-2xl border border-zinc-850 light:border-slate-200">
+              <div className="p-4 bg-white dark:bg-zinc-900/30 light:bg-slate-100 rounded-2xl border border-zinc-850 light:border-slate-200">
                 <div className="text-xl font-black text-brand-purple">96%</div>
-                <div className="text-[10px] text-zinc-500 font-extrabold mt-0.5 uppercase tracking-wider">React & Web API</div>
+                <div className="text-[10px] text-slate-500 dark:text-zinc-500 font-extrabold mt-0.5 uppercase tracking-wider">React & Web API</div>
               </div>
-              <div className="p-4 bg-zinc-900/30 light:bg-slate-100 rounded-2xl border border-zinc-850 light:border-slate-200">
+              <div className="p-4 bg-white dark:bg-zinc-900/30 light:bg-slate-100 rounded-2xl border border-zinc-850 light:border-slate-200">
                 <div className="text-xl font-black text-brand-indigo">92%</div>
-                <div className="text-[10px] text-zinc-500 font-extrabold mt-0.5 uppercase tracking-wider">Design Architecture</div>
+                <div className="text-[10px] text-slate-500 dark:text-zinc-500 font-extrabold mt-0.5 uppercase tracking-wider">Design Architecture</div>
               </div>
-              <div className="p-4 bg-zinc-900/30 light:bg-slate-100 rounded-2xl border border-zinc-850 light:border-slate-200">
+              <div className="p-4 bg-white dark:bg-zinc-900/30 light:bg-slate-100 rounded-2xl border border-zinc-850 light:border-slate-200">
                 <div className="text-xl font-black text-brand-cyan">88%</div>
-                <div className="text-[10px] text-zinc-500 font-extrabold mt-0.5 uppercase tracking-wider">Engine Performance</div>
+                <div className="text-[10px] text-slate-500 dark:text-zinc-500 font-extrabold mt-0.5 uppercase tracking-wider">Engine Performance</div>
               </div>
             </div>
 
             <div className="pt-2">
               <a
                 href="/resume"
-                className="inline-flex items-center gap-2 bg-zinc-900 hover:bg-zinc-850 light:bg-slate-100 light:hover:bg-slate-200 border border-zinc-800 light:border-slate-250 text-white light:text-slate-800 font-bold px-6 py-3 rounded-2xl transition active:scale-[0.98] text-sm"
+                className="inline-flex items-center gap-2 bg-white dark:bg-zinc-900 hover:bg-zinc-850 light:bg-slate-100 light:hover:bg-slate-200 border border-slate-200 dark:border-zinc-800 light:border-slate-250 text-zinc-900 dark:text-white light:text-slate-800 font-bold px-6 py-3 rounded-2xl transition active:scale-[0.98] text-sm"
               >
                 <svg className="w-4 h-4 text-brand-cyan" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -274,7 +275,7 @@ export default function Home() {
         <section className="space-y-6">
           <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-4">
             <div>
-              <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight text-white light:text-slate-900">Latest technical articles</h2>
+              <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight text-zinc-900 dark:text-white light:text-slate-900">Latest technical articles</h2>
               <p className="text-xs md:text-sm text-zinc-450 light:text-slate-500 mt-1">Deep dives into browser optimizations, microservice pipelines, and design specs.</p>
             </div>
             <Link
@@ -290,19 +291,19 @@ export default function Home() {
             {latestPosts.map((post) => (
               <GlassCard
                 key={post.id}
-                className="flex flex-col justify-between border-zinc-900/60"
+                className="flex flex-col justify-between border-slate-300 dark:border-zinc-900/60"
                 onClick={() => router.push(`/docs/${post.id}`)}
               >
                 <div className="space-y-4">
                   {/* Header info */}
-                  <div className="flex items-center justify-between text-[10px] font-extrabold text-zinc-500">
+                  <div className="flex items-center justify-between text-[10px] font-extrabold text-slate-500 dark:text-zinc-500">
                     <span className="bg-brand-indigo/10 border border-brand-indigo/20 text-brand-indigo px-2.5 py-0.5 rounded-full uppercase tracking-wider">
                       {post.tags[0]}
                     </span>
                     <span>{post.readTime}</span>
                   </div>
 
-                  <h3 className="text-base font-extrabold text-white light:text-slate-900 leading-snug group-hover:text-brand-purple transition">
+                  <h3 className="text-base font-extrabold text-zinc-900 dark:text-white light:text-slate-900 leading-snug group-hover:text-brand-purple transition">
                     {post.title}
                   </h3>
 
@@ -311,7 +312,7 @@ export default function Home() {
                   </p>
                 </div>
 
-                <div className="flex items-center justify-between mt-6 pt-4 border-t border-zinc-900 light:border-slate-100 text-[10px] font-bold text-zinc-500">
+                <div className="flex items-center justify-between mt-6 pt-4 border-t border-slate-300 dark:border-zinc-900 light:border-slate-100 text-[10px] font-bold text-slate-500 dark:text-zinc-500">
                   <span className="flex items-center gap-3">
                     <span className="flex items-center gap-1">
                       <svg className="w-3.5 h-3.5 text-zinc-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -334,23 +335,23 @@ export default function Home() {
         </section>
 
         {/* ================= CODE GAMES / QUIZ TEASER ================= */}
-        <section className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center bg-gradient-to-tr from-brand-indigo/5 to-brand-purple/5 border border-zinc-900 light:border-slate-200 rounded-3xl p-8 md:p-12 relative overflow-hidden shadow-xl">
+        <section className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center bg-gradient-to-tr from-brand-indigo/5 to-brand-purple/5 border border-slate-300 dark:border-zinc-900 light:border-slate-200 rounded-3xl p-8 md:p-12 relative overflow-hidden shadow-xl">
           <div className="absolute top-0 right-0 w-64 h-64 bg-brand-cyan/5 rounded-full blur-3xl pointer-events-none" />
 
           <div className="lg:col-span-7 space-y-5 text-center lg:text-left">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-purple/10 border border-brand-purple/20 text-brand-purple text-[10px] font-bold uppercase tracking-wider">
               Interactive Learning Section
             </div>
-            <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight text-white light:text-slate-900">
+            <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight text-zinc-900 dark:text-white light:text-slate-900">
               Validate your structural knowledge
             </h2>
-            <p className="text-xs md:text-sm text-zinc-400 light:text-slate-600 leading-relaxed font-medium max-w-xl">
-              Engage in short multiple-choice coding challenges designed to test compilation, grid layouts, and advanced TypeScript type theory. Earn badges and track progress.
+            <p className="text-xs md:text-sm text-slate-600 dark:text-zinc-400 light:text-slate-600 leading-relaxed font-medium max-w-xl">
+              Engage in short multiple-choice coding challenges designed to test compilation, grid layouts, and advanced TypeScript type theory. Track your progress.
             </p>
             <div className="pt-2">
               <Link
                 href="/games"
-                className="inline-flex items-center gap-2 bg-brand-purple hover:bg-brand-purple-dark text-white font-bold px-6 py-2.5 rounded-2xl transition active:scale-[0.98] text-xs shadow-[0_4px_15px_rgba(139,92,246,0.3)]"
+                className="inline-flex items-center gap-2 bg-brand-purple hover:bg-brand-purple-dark text-zinc-900 dark:text-white font-bold px-6 py-2.5 rounded-2xl transition active:scale-[0.98] text-xs shadow-[0_4px_15px_rgba(139,92,246,0.3)]"
               >
                 Try the Coding Quizzes
               </Link>
@@ -359,12 +360,12 @@ export default function Home() {
 
           {/* Interactive Question Teaser Mock */}
           <div className="lg:col-span-5 w-full">
-            <GlassCard hoverEffect={false} className="border-zinc-800/80 bg-zinc-950/80">
-              <div className="flex items-center justify-between text-[10px] font-extrabold text-zinc-500 mb-3">
+            <GlassCard hoverEffect={false} className="border-slate-200 dark:border-zinc-800/80 bg-slate-50 dark:bg-zinc-950/80">
+              <div className="flex items-center justify-between text-[10px] font-extrabold text-slate-500 dark:text-zinc-500 mb-3">
                 <span className="text-brand-cyan uppercase">React 19 Preview Question</span>
                 <span>Beginner Quiz</span>
               </div>
-              <p className="text-xs font-bold text-white light:text-slate-900 mb-4 leading-normal">
+              <p className="text-xs font-bold text-zinc-900 dark:text-white light:text-slate-900 mb-4 leading-normal">
                 {sampleQuizQuestion.text}
               </p>
 
@@ -372,10 +373,10 @@ export default function Home() {
                 {sampleQuizQuestion.options.slice(0, 2).map((opt, idx) => (
                   <button
                     key={idx}
-                    onClick={() => alert(`Submit score validation inside our complete /games dashboard! Explanation: ${sampleQuizQuestion.explanation}`)}
-                    className="w-full text-left text-[11px] p-3 rounded-xl border border-zinc-900 light:border-slate-250 bg-zinc-900/40 hover:bg-zinc-900/80 light:hover:bg-slate-100 hover:border-brand-purple/45 text-zinc-400 light:text-slate-650 font-semibold transition"
+                    onClick={() => toast.info(`Submit score validation inside our complete /games dashboard! Explanation: ${sampleQuizQuestion.explanation}`)}
+                    className="w-full text-left text-[11px] p-3 rounded-xl border border-slate-300 dark:border-zinc-900 light:border-slate-250 bg-white dark:bg-zinc-900/40 hover:bg-white dark:bg-zinc-900/80 light:hover:bg-slate-100 hover:border-brand-purple/45 text-slate-600 dark:text-zinc-400 light:text-slate-650 font-semibold transition"
                   >
-                    <span className="inline-flex items-center justify-center w-5 h-5 rounded-md bg-zinc-950 light:bg-slate-200 border border-zinc-850 text-[10px] font-bold text-zinc-400 mr-2">
+                    <span className="inline-flex items-center justify-center w-5 h-5 rounded-md bg-slate-50 dark:bg-zinc-950 light:bg-slate-200 border border-zinc-850 text-[10px] font-bold text-slate-600 dark:text-zinc-400 mr-2">
                       {String.fromCharCode(65 + idx)}
                     </span>
                     {opt}

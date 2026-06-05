@@ -158,6 +158,40 @@ app.post('/api/comments', async (req, res) => {
 });
 
 // =======================
+// INTERACTIONS (Likes & Views)
+// =======================
+app.post('/api/interactions', async (req, res) => {
+  const { targetType, targetId, userId, action } = req.body;
+  if (!targetType || !targetId || !userId || !action) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  try {
+    const db = await dbPromise;
+    // Insert interaction (will fail if duplicate due to UNIQUE constraint)
+    await db.run(
+      'INSERT INTO interactions (targetType, targetId, userId, action) VALUES (?, ?, ?, ?)',
+      [targetType, targetId, userId, action]
+    );
+
+    // If successful, increment the respective count
+    const table = targetType === 'project' ? 'projects' : 'posts';
+    const column = action === 'like' ? 'likes' : 'views';
+
+    // Update count in the parent table
+    await db.run(`UPDATE ${table} SET ${column} = ${column} + 1 WHERE id = ?`, [targetId]);
+
+    const updated = await db.get(`SELECT ${column} FROM ${table} WHERE id = ?`, [targetId]);
+    return res.json({ success: true, count: updated[column] });
+  } catch (err) {
+    if (err.code === 'SQLITE_CONSTRAINT') {
+      return res.status(200).json({ success: true, message: 'Already recorded' });
+    }
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// =======================
 // QUIZZES
 // =======================
 app.get('/api/quizzes', async (req, res) => {
@@ -205,6 +239,212 @@ app.get('/api/quizzes/:id', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+// =======================
+// USERS
+// =======================
+app.post('/api/users/register', async (req, res) => {
+  const { name, email, password } = req.body;
+  if (!name || !email || !password) {
+    return res.status(400).json({ error: 'Name, email, and password are required' });
+  }
+  try {
+    const db = await dbPromise;
+    const existing = await db.get('SELECT * FROM users WHERE email = ?', [email]);
+    if (existing) {
+      return res.status(400).json({ error: 'User with this email already exists' });
+    }
+    const id = 'u' + Date.now();
+    await db.run(
+      'INSERT INTO users (id, name, email, role, authProvider, password) VALUES (?, ?, ?, ?, ?, ?)',
+      [id, name, email, 'user', 'local', password] // Note: In a real app, hash the password!
+    );
+    const newUser = await db.get('SELECT id, name, email, role, authProvider FROM users WHERE id = ?', [id]);
+    res.status(201).json(newUser);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/users/login', async (req, res) => {
+  const { email, password } = req.body;
+  if (!email || !password) {
+    return res.status(400).json({ error: 'Email and password are required' });
+  }
+  try {
+    const db = await dbPromise;
+
+    // Check for hardcoded admin first (since it's an admin bypass)
+    if (email === 'admin@fluxfolio.dev' && password === 'admin123') {
+      return res.json({ id: 'admin1', name: 'Felix De', email, role: 'admin', authProvider: 'local' });
+    }
+
+    const user = await db.get('SELECT * FROM users WHERE email = ?', [email]);
+    if (!user) {
+      return res.status(401).json({ error: 'Invalid email or password' });
+    }
+    if (user.password !== password) { // Note: In a real app, compare hashes!
+      return res.status(401).json({ error: 'Invalid email or password' });
+    }
+
+    const safeUser = { id: user.id, name: user.name, email: user.email, role: user.role, authProvider: user.authProvider };
+    res.json(safeUser);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/users/oauth', async (req, res) => {
+  const { name, email, provider } = req.body;
+  if (!name || !email || !provider) {
+    return res.status(400).json({ error: 'Name, email, and provider are required' });
+  }
+  try {
+    const db = await dbPromise;
+    let user = await db.get('SELECT * FROM users WHERE email = ?', [email]);
+
+    if (!user) {
+      // Create new user if they don't exist
+      const id = 'u' + Date.now();
+      await db.run(
+        'INSERT INTO users (id, name, email, role, authProvider) VALUES (?, ?, ?, ?, ?)',
+        [id, name, email, 'user', provider]
+      );
+      user = await db.get('SELECT * FROM users WHERE id = ?', [id]);
+    } else {
+      // If user exists but used a different provider, update it or just let them in
+      if (user.authProvider !== provider) {
+        await db.run('UPDATE users SET authProvider = ? WHERE id = ?', [provider, user.id]);
+        user.authProvider = provider;
+      }
+    }
+
+    const safeUser = { id: user.id, name: user.name, email: user.email, role: user.role, authProvider: user.authProvider };
+    res.json(safeUser);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+app.post('/api/users/oauth/github', async (req, res) => {
+  const { code } = req.body;
+  if (!code) return res.status(400).json({ error: 'Code is required' });
+
+  try {
+    // 1. Exchange code for access token
+    const tokenResponse = await fetch('https://github.com/login/oauth/access_token', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      body: JSON.stringify({
+        client_id: process.env.GITHUB_CLIENT_ID,
+        client_secret: process.env.GITHUB_CLIENT_SECRET,
+        code,
+      }),
+    });
+
+    const tokenData = await tokenResponse.json();
+    if (tokenData.error) {
+      return res.status(400).json({ error: tokenData.error_description || 'Failed to get access token from GitHub' });
+    }
+
+    const accessToken = tokenData.access_token;
+
+    // 2. Fetch user profile
+    const userResponse = await fetch('https://api.github.com/user', {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+    const userData = await userResponse.json();
+
+    // 3. Fetch user emails (GitHub hides primary email sometimes)
+    let email = userData.email;
+    if (!email) {
+      const emailResponse = await fetch('https://api.github.com/user/emails', {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      const emails = await emailResponse.json();
+      const primaryEmail = emails.find(e => e.primary) || emails[0];
+      email = primaryEmail?.email;
+    }
+
+    if (!email) {
+      return res.status(400).json({ error: 'Could not retrieve email from GitHub' });
+    }
+
+    const name = userData.name || userData.login;
+
+    // 4. Register or login user in our DB
+    const db = await dbPromise;
+    let user = await db.get('SELECT * FROM users WHERE email = ?', [email]);
+
+    if (!user) {
+      const id = 'u' + Date.now();
+      await db.run(
+        'INSERT INTO users (id, name, email, role, authProvider) VALUES (?, ?, ?, ?, ?)',
+        [id, name, email, 'user', 'github']
+      );
+      user = await db.get('SELECT * FROM users WHERE id = ?', [id]);
+    } else if (user.authProvider !== 'github') {
+      await db.run('UPDATE users SET authProvider = ? WHERE id = ?', ['github', user.id]);
+      user.authProvider = 'github';
+    }
+
+    const safeUser = { id: user.id, name: user.name, email: user.email, role: user.role, authProvider: user.authProvider };
+    res.json(safeUser);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
+// =======================
+// GAMES / SCORES
+// =======================
+app.post('/api/games/score', async (req, res) => {
+  const { userId, quizId, score, completed } = req.body;
+  if (!userId || !quizId) {
+    return res.status(400).json({ error: 'userId and quizId are required' });
+  }
+
+  try {
+    const db = await dbPromise;
+    const existing = await db.get('SELECT * FROM quiz_scores WHERE userId = ? AND quizId = ?', [userId, quizId]);
+
+    if (existing) {
+      await db.run(
+        'UPDATE quiz_scores SET score = ?, completed = ? WHERE userId = ? AND quizId = ?',
+        [score, completed, userId, quizId]
+      );
+      res.json({ message: 'Score updated successfully' });
+    } else {
+      const id = 'qs_' + Date.now();
+      await db.run(
+        'INSERT INTO quiz_scores (id, userId, quizId, score, completed) VALUES (?, ?, ?, ?, ?)',
+        [id, userId, quizId, score, completed]
+      );
+      res.status(201).json({ message: 'Score saved successfully' });
+    }
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.get('/api/games/scores/:userId', async (req, res) => {
+  const { userId } = req.params;
+  try {
+    const db = await dbPromise;
+    const scores = await db.all('SELECT * FROM quiz_scores WHERE userId = ?', [userId]);
+    res.json(scores);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 
 // =======================
 // CONTACT / EMAIL

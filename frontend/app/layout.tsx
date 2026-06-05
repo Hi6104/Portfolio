@@ -4,6 +4,9 @@ import './globals.css';
 import { AppProvider } from '../context/AppContext';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import { GoogleOAuthProvider } from '@react-oauth/google';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -27,20 +30,26 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Use the actual Client ID from environment variables, or a fallback empty string
+  const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '';
+
   return (
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
       suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col bg-zinc-950 light:bg-slate-50 text-zinc-100 light:text-slate-900 transition-colors duration-300">
-        <AppProvider>
-          <Header />
-          <main className="flex-1 flex flex-col relative z-10 pb-16 md:pb-0">
-            {children}
-          </main>
-          <Footer />
-        </AppProvider>
+      <body className="min-h-full flex flex-col bg-slate-50 dark:bg-zinc-950 light:bg-slate-50 text-zinc-100 light:text-slate-900 transition-colors duration-300">
+        <GoogleOAuthProvider clientId={clientId}>
+          <AppProvider>
+            <Header />
+            <main className="flex-1 flex flex-col relative z-10 pb-16 md:pb-0">
+              {children}
+            </main>
+            <Footer />
+            <ToastContainer position="top-right" theme="dark" />
+          </AppProvider>
+        </GoogleOAuthProvider>
       </body>
     </html>
   );

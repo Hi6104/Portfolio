@@ -214,10 +214,6 @@ export const mockPosts: Post[] = [
       
       <p>The <code>backdrop-filter</code> property is the soul of glassmorphism; it allows you to apply graphical effects like blurring to the area behind an element. When combined with a semi-transparent background color, it creates that recognizable frosted aesthetic.</p>
       
-      <div class="callout callout-info">
-        <strong>Ready to test your skills?</strong> Take our CSS Architecture quiz and earn a badge for your portfolio.
-      </div>
-      
       <h3>Common Pitfalls</h3>
       <ul>
         <li><strong>Too much blur:</strong> Avoid over-stacking multiple blurred layers as it severely degrades scrolling performance on mobile devices.</li>

@@ -47,6 +47,7 @@ async function setupDatabase() {
       category TEXT,
       content TEXT,
       image TEXT,
+      views INTEGER DEFAULT 0,
       likes INTEGER DEFAULT 0,
       commentsCount INTEGER DEFAULT 0,
       isPublished BOOLEAN,
@@ -88,6 +89,36 @@ async function setupDatabase() {
       correctOptionIndex INTEGER,
       explanation TEXT,
       FOREIGN KEY (quizId) REFERENCES quizzes(id) ON DELETE CASCADE
+    );
+
+    CREATE TABLE IF NOT EXISTS users (
+      id TEXT PRIMARY KEY,
+      name TEXT NOT NULL,
+      email TEXT NOT NULL UNIQUE,
+      role TEXT DEFAULT 'user',
+      authProvider TEXT DEFAULT 'local',
+      password TEXT
+    );
+
+    CREATE TABLE IF NOT EXISTS quiz_scores (
+      id TEXT PRIMARY KEY,
+      userId TEXT NOT NULL,
+      quizId TEXT NOT NULL,
+      score INTEGER,
+      completed BOOLEAN,
+      badgesEarned TEXT,
+      FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE,
+      FOREIGN KEY (quizId) REFERENCES quizzes(id) ON DELETE CASCADE,
+      UNIQUE (userId, quizId)
+    );
+
+    CREATE TABLE IF NOT EXISTS interactions (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      targetType TEXT NOT NULL,
+      targetId TEXT NOT NULL,
+      userId TEXT NOT NULL,
+      action TEXT NOT NULL,
+      UNIQUE (targetType, targetId, userId, action)
     );
   `);
 

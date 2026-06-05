@@ -45,8 +45,8 @@ export default function ContactScreen() {
       <div className="max-w-5xl mx-auto relative z-10 space-y-12">
 
         {/* Page Header */}
-        <div className="border-b border-zinc-900 light:border-slate-200 pb-8">
-          <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-white light:text-slate-900 leading-tight">
+        <div className="border-b border-slate-300 dark:border-zinc-900 light:border-slate-200 pb-8">
+          <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-zinc-900 dark:text-white light:text-slate-900 leading-tight">
             Contact & Connections
           </h1>
           <p className="text-sm text-zinc-450 light:text-slate-550 mt-1">
@@ -59,8 +59,8 @@ export default function ContactScreen() {
 
           {/* Contact form (7/12 layout) */}
           <div className="lg:col-span-7">
-            <GlassCard hoverEffect={false} className="border-zinc-900/60 bg-zinc-950/60 !p-6 md:p-8">
-              <h2 className="text-base font-bold text-white mb-6 uppercase tracking-wider">Leave a Message</h2>
+            <GlassCard hoverEffect={false} className="border-slate-300 dark:border-zinc-900/60 bg-slate-50 dark:bg-zinc-950/60 !p-6 md:p-8">
+              <h2 className="text-base font-bold text-zinc-900 dark:text-white mb-6 uppercase tracking-wider">Leave a Message</h2>
 
               <form onSubmit={handleSubmit} className="space-y-5 text-xs font-semibold">
 
@@ -73,7 +73,7 @@ export default function ContactScreen() {
                       placeholder="Sarah Chen"
                       value={name}
                       onChange={e => setName(e.target.value)}
-                      className="w-full bg-zinc-900/60 light:bg-slate-100 border border-zinc-850 light:border-slate-200 rounded-xl px-4 py-3 text-white light:text-slate-900 focus:outline-none focus:border-brand-purple"
+                      className="w-full bg-white dark:bg-zinc-900/60 light:bg-slate-100 border border-zinc-850 light:border-slate-200 rounded-xl px-4 py-3 text-zinc-900 dark:text-white light:text-slate-900 focus:outline-none focus:border-brand-purple"
                     />
                   </div>
                   <div>
@@ -84,7 +84,7 @@ export default function ContactScreen() {
                       placeholder="sarah@designops.co"
                       value={email}
                       onChange={e => setEmail(e.target.value)}
-                      className="w-full bg-zinc-900/60 light:bg-slate-100 border border-zinc-850 light:border-slate-200 rounded-xl px-4 py-3 text-white light:text-slate-900 focus:outline-none focus:border-brand-purple"
+                      className="w-full bg-white dark:bg-zinc-900/60 light:bg-slate-100 border border-zinc-850 light:border-slate-200 rounded-xl px-4 py-3 text-zinc-900 dark:text-white light:text-slate-900 focus:outline-none focus:border-brand-purple"
                     />
                   </div>
                 </div>
@@ -97,7 +97,7 @@ export default function ContactScreen() {
                     placeholder="Describe your architectural plan, hiring requirements, or system questions..."
                     value={message}
                     onChange={e => setMessage(e.target.value)}
-                    className="w-full bg-zinc-900/60 light:bg-slate-100 border border-zinc-850 light:border-slate-200 rounded-xl p-4 text-white light:text-slate-900 focus:outline-none focus:border-brand-purple"
+                    className="w-full bg-white dark:bg-zinc-900/60 light:bg-slate-100 border border-zinc-850 light:border-slate-200 rounded-xl p-4 text-zinc-900 dark:text-white light:text-slate-900 focus:outline-none focus:border-brand-purple"
                   />
                 </div>
 
@@ -106,9 +106,9 @@ export default function ContactScreen() {
                     type="checkbox"
                     checked={subscribe}
                     onChange={e => setSubscribe(e.target.checked)}
-                    className="w-4 h-4 rounded text-brand-purple bg-zinc-900 border-zinc-700 accent-brand-purple focus:ring-brand-purple focus:outline-none"
+                    className="w-4 h-4 rounded text-brand-purple bg-white dark:bg-zinc-900 border-zinc-700 accent-brand-purple focus:ring-brand-purple focus:outline-none"
                   />
-                  <span className="text-[10px] text-zinc-500 font-semibold">
+                  <span className="text-[10px] text-slate-500 dark:text-zinc-500 font-semibold">
                     Opt-in to get technical case summaries directly in your inbox.
                   </span>
                 </label>
@@ -128,7 +128,7 @@ export default function ContactScreen() {
                   <button
                     type="submit"
                     disabled={isLoading}
-                    className="bg-brand-purple hover:bg-brand-purple-dark disabled:opacity-60 disabled:cursor-not-allowed text-white font-extrabold px-6 py-3 rounded-2xl transition active:scale-[0.98] shadow-lg text-xs flex items-center gap-2"
+                    className="bg-brand-purple hover:bg-brand-purple-dark disabled:opacity-60 disabled:cursor-not-allowed text-zinc-900 dark:text-white font-extrabold px-6 py-3 rounded-2xl transition active:scale-[0.98] shadow-lg text-xs flex items-center gap-2"
                   >
                     {isLoading ? (
                       <>
@@ -150,12 +150,12 @@ export default function ContactScreen() {
           <div className="lg:col-span-5 space-y-6">
 
             {/* Visual hand-drawn geo map illustration */}
-            <GlassCard hoverEffect={false} className="border-zinc-900/60 bg-zinc-950/60 !p-5 relative overflow-hidden flex flex-col justify-between aspect-video md:aspect-auto">
-              <h3 className="text-xs font-extrabold uppercase tracking-widest text-zinc-500 mb-3 border-b border-zinc-900 pb-2">
+            <GlassCard hoverEffect={false} className="border-slate-300 dark:border-zinc-900/60 bg-slate-50 dark:bg-zinc-950/60 !p-5 relative overflow-hidden flex flex-col justify-between aspect-video md:aspect-auto">
+              <h3 className="text-xs font-extrabold uppercase tracking-widest text-slate-500 dark:text-zinc-500 mb-3 border-b border-slate-300 dark:border-zinc-900 pb-2">
                 Operational Coordinates
               </h3>
 
-              <div className="relative w-full aspect-[2/1] rounded-xl overflow-hidden border border-zinc-900/80 bg-zinc-950/20">
+              <div className="relative w-full aspect-[2/1] rounded-xl overflow-hidden border border-slate-300 dark:border-zinc-900/80 bg-slate-50 dark:bg-zinc-950/20">
                 {/* SVG Abstract maps nodes */}
                 <svg viewBox="0 0 200 100" className="w-full h-full p-2 opacity-60">
                   <path d="M10,80 Q40,30 80,70 T150,20" fill="none" stroke="#6366f1" strokeWidth="0.5" strokeDasharray="3,3" />
@@ -170,16 +170,16 @@ export default function ContactScreen() {
                 </svg>
               </div>
 
-              <div className="space-y-1.5 mt-4 text-[10px] font-bold uppercase tracking-wider text-zinc-500">
-                <div>Location: <span className="text-white">{constants.location}</span></div>
+              <div className="space-y-1.5 mt-4 text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-500">
+                <div>Location: <span className="text-zinc-900 dark:text-white">{constants.location}</span></div>
                 <div>Email: <a href="mailto:hvishwakarma821@gmail.com" className="text-brand-cyan hover:underline normal-case">hvishwakarma821@gmail.com</a></div>
                 <div>Phone: <a href="tel:+917080987084" className="text-brand-cyan hover:underline normal-case">+91 7080987084</a></div>
               </div>
             </GlassCard>
 
             {/* Social channels card */}
-            <GlassCard hoverEffect={false} className="border-zinc-900/60 bg-zinc-950/60 !p-5 space-y-4">
-              <h3 className="text-xs font-extrabold uppercase tracking-widest text-zinc-400 border-b border-zinc-900 pb-2">
+            <GlassCard hoverEffect={false} className="border-slate-300 dark:border-zinc-900/60 bg-slate-50 dark:bg-zinc-950/60 !p-5 space-y-4">
+              <h3 className="text-xs font-extrabold uppercase tracking-widest text-slate-600 dark:text-zinc-400 border-b border-slate-300 dark:border-zinc-900 pb-2">
                 Social Profiles
               </h3>
               <div className="space-y-3.5 text-xs">
@@ -189,13 +189,13 @@ export default function ContactScreen() {
                     href={soc.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-between p-3 bg-zinc-900/40 hover:bg-zinc-900 border border-zinc-900 hover:border-brand-purple/20 rounded-xl transition duration-300"
+                    className="flex items-center justify-between p-3 bg-white dark:bg-zinc-900/40 hover:bg-white dark:bg-zinc-900 border border-slate-300 dark:border-zinc-900 hover:border-brand-purple/20 rounded-xl transition duration-300"
                   >
                     <div>
                       <div className="text-[9px] font-extrabold text-zinc-550 uppercase">{soc.label}</div>
-                      <div className="font-extrabold text-white mt-0.5">{soc.handle}</div>
+                      <div className="font-extrabold text-zinc-900 dark:text-white mt-0.5">{soc.handle}</div>
                     </div>
-                    <span className="text-[10px] text-zinc-500 group-hover:text-brand-purple text-right">
+                    <span className="text-[10px] text-slate-500 dark:text-zinc-500 group-hover:text-brand-purple text-right">
                       {soc.value}
                     </span>
                   </a>

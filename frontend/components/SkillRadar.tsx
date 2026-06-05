@@ -163,10 +163,10 @@ export default function SkillRadar() {
           <div className="text-sm font-medium text-brand-cyan flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-brand-cyan" />
             {activeSkill.name}:{' '}
-            <span className="font-extrabold text-white">{activeSkill.percentage}%</span> Mastery
+            <span className="font-extrabold text-zinc-900 dark:text-white">{activeSkill.percentage}%</span> Mastery
           </div>
         ) : (
-          <div className="text-xs text-zinc-500 text-center">
+          <div className="text-xs text-slate-500 dark:text-zinc-500 text-center">
             Hover over the outer points to inspect skill levels
           </div>
         )}
